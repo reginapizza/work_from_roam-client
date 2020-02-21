@@ -1,0 +1,12 @@
+.sign-in-button {
+    position: absolute;
+    display: flex;
+    z-index: 11;
+    height: 50px !important;
+    width: 60px;
+    
+}
+
+.sign-in-button:hover {
+    background-color: aquamarine;
+}

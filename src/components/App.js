@@ -3,7 +3,8 @@ import '../App.css';
 import Search from './Search'
 import GoogleMap from './GoogleMap';
 import ReviewForm from './ReviewForm';
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import SignInButton from './SignInButton'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 
 class App extends React.Component {
   constructor() {
@@ -23,12 +24,11 @@ class App extends React.Component {
       
       <Router>
         
-        <Route path='/new/:placeId'>
-          <ReviewForm />
-        </Route>
-
+        
         <Route path='/'>
           <div className="App">
+
+            <SignInButton />
             
             <Search setApp={this.setState.bind(this)}/>
 
@@ -40,6 +40,13 @@ class App extends React.Component {
 
           </div>
         </Route>
+
+        <Switch>
+          <Route path='/auth' component={ReviewForm}/>
+          <Route path='/new/:placeId' render={() => <ReviewForm />}/>
+        </Switch>
+        
+        
       </Router>
       
       
