@@ -36,7 +36,26 @@ class GoogleMap extends React.Component {
 
       // onClick handler to set marker to state and show corresponding info window
     onMarkerClick = (props, marker, event) => {
+        const handleData = (data, status) => {
+            console.log(data)
+            // save data from places details to state.placeData
+            // this.props.setApp({placeData: data})
+        }
         this.setState({ selectedMarker: marker, showWindow: true })
+        console.log('marker is', marker)
+        console.log('props is', props)
+        // console.log(event)
+        const service = new this.props.google.maps.places.PlacesService(props.map)
+        console.log(service)
+        console.log(service.getDetails)
+        console.log(marker.data.place_id)
+        service.getDetails(
+            {
+                placeId: marker.data.place_id,
+                fields: ['name', 'website', 'formatted_phone_number', 'formatted_address', 'photo', 'reference', 'reviews']
+            },
+            handleData
+        )
     }
 
     // onClose handler for InfoWindow
@@ -45,6 +64,7 @@ class GoogleMap extends React.Component {
     }
 
     showPOI = (map, event) => {
+        console.log('map is', map)
         // declare function to handle data returned from service.getDetails()
         const handleData = (data, status) => {
             console.log(data)
@@ -75,6 +95,7 @@ class GoogleMap extends React.Component {
     }
 
     handleClick = (props, map, event) => {
+        console.log(map)
         // if click event has a place id, get details on place and save data to state
         if(event.placeId) {
             // first save the location and place id to state. Clear data for place image and place data
@@ -102,12 +123,13 @@ class GoogleMap extends React.Component {
                     <PlacesDetail placeData={this.props.placeData} />
                 </InfoWindow>
 
+                {/* create markers for each piece of data */}
                 {this.state.allData.map(workSpace => (
                     <Marker onClick={this.onMarkerClick}
                         position={{ lat: workSpace.lat, lng: workSpace.lng}}
                         placeId={workSpace.placeId}
                         data={workSpace}
-                        name={'Current location'}
+                        name={'work-space'}
                     />
                 ))}
                 
