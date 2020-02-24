@@ -34,28 +34,39 @@ class GoogleMap extends React.Component {
         })
     }
 
-      // onClick handler to set marker to state and show corresponding info window
+    placeDetails = ['name', 'website', 'formatted_phone_number', 'formatted_address', 'photo', 'reference', 'reviews']
+
+    // callback function to handle place details from Google place detail api
+    setPlaceData = placeData => {
+        console.log(placeData)
+        this.props.setApp({ placeData })
+    }
+
+    // get place details from google place detail api
+    getPlaceDetails = (map, placeId) => {
+        const fields = this.placeDetails
+        const service = new this.props.google.maps.places.PlacesService(map)
+        service.getDetails({ placeId, fields }, this.setPlaceData)
+    }
+
+    // set new map poi or marker location and placeId. Reset placeData to null
+    setNewLocation = (location, placeId) => {
+        this.props.setApp({
+            poiLocation: location,
+            mapCenter: location,
+            placeData: null,
+            placeId
+        })
+    }
+
+    // onClick handler to set marker to state and get place details
     onMarkerClick = (props, marker, event) => {
-        const handleData = (data, status) => {
-            console.log(data)
-            // save data from places details to state.placeData
-            // this.props.setApp({placeData: data})
-        }
-        this.setState({ selectedMarker: marker, showWindow: true })
-        console.log('marker is', marker)
-        console.log('props is', props)
-        // console.log(event)
-        const service = new this.props.google.maps.places.PlacesService(props.map)
-        console.log(service)
-        console.log(service.getDetails)
-        console.log(marker.data.place_id)
-        service.getDetails(
-            {
-                placeId: marker.data.place_id,
-                fields: ['name', 'website', 'formatted_phone_number', 'formatted_address', 'photo', 'reference', 'reviews']
-            },
-            handleData
-        )
+        this.setState({ selectedMarker: marker })
+        const lat = marker.data.lat
+        const lng = marker.data.lng
+        const placeId = marker.data.place_id
+        this.setNewLocation({ lat, lng }, placeId)
+        this.getPlaceDetails(props.map, placeId)
     }
 
     // onClose handler for InfoWindow
@@ -63,43 +74,16 @@ class GoogleMap extends React.Component {
         this.setState({ showWindow: false })
     }
 
-    showPOI = (map, event) => {
-        console.log('map is', map)
-        // declare function to handle data returned from service.getDetails()
-        const handleData = (data, status) => {
-            console.log(data)
-            // save data from places details to state.placeData
-            this.props.setApp({placeData: data})
-        }
-
-        // save the click location and reset place data
-
-        this.props.setApp({
-            poiLocation: { lat: event.latLng.lat(), lng: event.latLng.lng() },
-            mapCenter: { lat: event.latLng.lat(), lng: event.latLng.lng() },
-            placeData: null,
-            placeId: event.placeId
-        })
-        // create new instance of class PlacesService to access google places api
-        const service = new this.props.google.maps.places.PlacesService(map)
-        console.log('service is:', service)
-
-        // call getDetails from google places api, passing placeId, fields to get data for, and above callback function to handle the response
-        service.getDetails(
-            {
-                placeId: event.placeId,
-                fields: ['name', 'website', 'formatted_phone_number', 'formatted_address', 'photo', 'reference', 'reviews']
-            },
-            handleData
-        )
-    }
-
     handleClick = (props, map, event) => {
         console.log(map)
-        // if click event has a place id, get details on place and save data to state
+        // if click event has a place id (point of interest)
         if(event.placeId) {
-            // first save the location and place id to state. Clear data for place image and place data
-            this.showPOI(map, event)
+            // set new location and get place details for the poi
+            const lat = event.latLng.lat()
+            const lng = event.latLng.lng()
+            const placeId = event.placeId
+            this.setNewLocation({ lat, lng }, placeId)
+            this.getPlaceDetails(map, placeId) 
         }
     }
 
