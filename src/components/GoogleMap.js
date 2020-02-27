@@ -3,6 +3,7 @@ import { Redirect, withRouter } from 'react-router-dom'
 import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react'
 import TestComponent from './TestComponent'
 import PlacesDetail from './PlacesDetail'
+import SuggestionsList from './SuggestionsList/SuggestionsList.js'
 import axios from 'axios'
 import apiUrl from '../apiConfig'
 
@@ -33,7 +34,7 @@ class GoogleMap extends React.Component {
       axios(apiUrl + '/work_spaces')
         .then(data => {
             // console.log(data)
-            this.setState({ allData: data.data.work_spaces })
+            this.props.setApp({ allData: data.data.work_spaces })
         })
     }
 
@@ -99,9 +100,13 @@ class GoogleMap extends React.Component {
             this.showPOI(map, event)
             this.setState({ showPOI: true })
         } else {
-            this.navigateHome()                        
+            this.navigateHome()
         }
-     
+
+    }
+
+    showSuggestions = () => {
+      this.props.history.push('/suggestions')
     }
 
     render() {
@@ -123,6 +128,7 @@ class GoogleMap extends React.Component {
             <Marker name={'search result'}
                     position={this.props.searchLocation}
                     icon={{url:'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'}}
+                    onClick={this.showSuggestions}
                     />
 
                 {/* info window for poi locations */}
@@ -133,7 +139,7 @@ class GoogleMap extends React.Component {
                     <PlacesDetail placeData={this.props.placeData} />
                 </InfoWindow>
 
-                {this.state.allData.map(workSpace => (
+                {this.props.allData.map(workSpace => (
                     <Marker onClick={this.onMarkerClick}
                         position={{ lat: workSpace.lat, lng: workSpace.lng}}
                         placeId={workSpace.placeId}
